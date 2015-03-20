@@ -9,15 +9,28 @@ class Widget {
 protected:
     int x,y;
     int width,height;
+    bool focused;
+    Display*    display;
+    int         screen;
+    Window      window;
+    GC          gc;
 public:
     Widget(int x,int y,int width,int height)
-        : x(x), y(y), width(width), height(height) {
+        : x(x), y(y), width(width), height(height), focused(false) {
     }
+    //-------------------------------------------------------------------------------
+    void updateGraphVariables(Display* display,int screen,Window window,GC gc) {
+        this->display   = display;
+        this->screen    = screen;
+        this->window    = window;
+        this->gc        = gc;
+    }
+
     //-------------------------------------------------------------------------------
     virtual ~Widget() {
     }
     //-------------------------------------------------------------------------------
-    virtual void draw(Display*,Window,GC) {
+    virtual void draw() {
     }
     //-------------------------------------------------------------------------------
     virtual bool triggerEvent(XEvent&) {
@@ -32,6 +45,10 @@ public:
         }
         return false;
     }
+    //-------------------------------------------------------------------------------
+    virtual void setFocused(bool) {
+        this->focused = false;
+    }
 };
 
 class Label : public Widget {
@@ -42,11 +59,10 @@ public:
         strcpy(this->text,text);
     }
     //-------------------------------------------------------------------------------
-    void draw(Display* display,Window window,GC gc) {
+    void draw() {
         XDrawString(display,window,gc,x+10,y+height/2+5,text,strlen(text));
     }
 };
-
 
 class TextField : public Widget {
 private:
@@ -56,20 +72,37 @@ public:
         strcpy(text,"");
     }
     //-------------------------------------------------------------------------------
-    void draw(Display* display,Window window,GC gc) {
+    void draw() {
         XDrawRectangle(display,window,gc,x,y,width,height);
+        XClearArea(display,window,x+1,y+1,width-2,height-2,false);
         XDrawString(display,window,gc,x+10,y+height/2+5,text,strlen(text));
     }
     //-------------------------------------------------------------------------------
     bool triggerEvent(XEvent& event) {
         switch (event.type) {
-        case KeyPress:
-            std::cout << event.xkey.keycode << std::endl;
-            return true;
-        default:
+        case ButtonPress:
+            if (mouseInArea(event)) return true;
             break;
+        case KeyPress:
+            text[strlen(text)-1]=XKeycodeToKeysym(display,event.xkey.keycode,0);
+            text[strlen(text)+1]=0;
+            text[strlen(text)]='_';
+            draw();
+            return true;
         }
         return false;
+    }
+    //-------------------------------------------------------------------------------
+    void setFocused(bool focused) {
+        if (focused && !this->focused) {
+            strcat(text,"_");
+            draw();
+        }
+        else if (!focused && this->focused) {
+            text[strlen(text)-1]=0;
+            draw();
+        }
+        this->focused = focused;
     }
 };
 
@@ -112,35 +145,38 @@ public:
         while(keepruning) {
             XEvent event;
             XNextEvent(display,&event);
+            if (current) if (current->triggerEvent(event)) goto done;
+
             for (int i=0; i<MAX; i++) {
                 if (widgets[i]) {
-                    if (widgets[i]->triggerEvent(event)) goto done;
+                    if (widgets[i]->triggerEvent(event)) {
+                        if (current) current->setFocused(false);
+                        current = widgets[i];
+                        current->setFocused(true);
+                        goto done;
+                    }
                 }
             }
+
             switch (event.type) {
             case KeyPress:
                 if (event.xkey.keycode==9) keepruning=false;
                 break;
             case Expose:
                 for (int i=0; i<MAX; i++) if (widgets[i]) {
-                    widgets[i]->draw(display,window,gc);
-                }
-            case ButtonPress:
-                for (int i=0; i<MAX; i++)if (widgets[i]) {
-                    widgets[i]->draw(display,window,gc);
+                    widgets[i]->draw();
                 }
             default:
                 break;
             }
-            done:
-            {
-            }
+            done: {}
         }
     }
     //-------------------------------------------------------------------------------
     void add(Widget* widget) {
         for (int i=0; i<MAX; i++) if (!widgets[i]) {
             widgets[i] = widget;
+            widgets[i]->updateGraphVariables(display,screen,window,gc);
             return;
         }
     }
