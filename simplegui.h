@@ -5,6 +5,11 @@
 #include <cstring>
 #include <iostream>
 #include <X11/Xutil.h>
+
+unsigned long rgb(unsigned long red, unsigned long green, unsigned long blue) {
+    return red<<16 | green<<8 | blue;
+}
+
 /**
  * @brief The Widget class
  * ==================================================================================
@@ -80,7 +85,8 @@ public:
 
 class TextField : public Widget {
 public:
-    TextField(int x,int y,int width,int height) : Widget(x,y,width,height,""){
+    TextField(int x,int y,int width,int height)
+        : Widget(x,y,width,height,""){
     }
     //-------------------------------------------------------------------------------
     void draw() {
@@ -144,13 +150,24 @@ public:
  * ==================================================================================
  */
 class Button : public Widget {
+private:
+    bool active;
 public:
-    Button(int x,int y,int width,int height,const char text[]) : Widget(x,y,width,height,text){
+    Button(int x,int y,int width,int height,const char text[])
+        : Widget(x,y,width,height,text), active(false) {
     }
     //-------------------------------------------------------------------------------
     void draw() {
         XDrawRectangle(display,window,gc,x,y,width,height);
-        XClearArea(display,window,x+1,y+1,width-2,height-2,false);
+
+        if (active) {
+            XSetForeground(display,gc,rgb(200,200,200));
+            XFillRectangle(display,window,gc,x+1,y+1,width-1,height-1);
+            XSetForeground(display,gc,rgb(0,0,0));
+        }
+        else {
+            XClearArea(display,window,x+1,y+1,width-2,height-2,false);
+        }
         int cx = x+width/2;
         int cy = y+height/2;
         int twidth = strlen(text)*7;
@@ -162,10 +179,21 @@ public:
         switch (event.type) {
         case ButtonPress:
             if (mouseInArea(event)) {
+                active = true;
+                draw();
+            }
+            break;
+        case ButtonRelease:
+            if (mouseInArea(event)) {
                 (*action)();
                 return true;
             }
             break;
+        case MotionNotify:
+            if (active && !mouseInArea(event)) {
+                active = false;
+                draw();
+            }
         }
         return false;
     }
@@ -197,7 +225,8 @@ public:
                                       x,y,width,height,1,0,255<<16|255<<8|255);
         gc      = XDefaultGC(display,screen);
         XMapWindow(display,window);
-        XSelectInput(display,window,ExposureMask|ButtonPressMask|KeyPressMask);
+        XSelectInput(display,window,ExposureMask|ButtonPressMask|ButtonReleaseMask
+                     |KeyPressMask|PointerMotionMask);
         for (int i=0; i<MAX; i++) widgets[i]=NULL;
         current = NULL;
     }
@@ -236,6 +265,8 @@ public:
                 for (int i=0; i<MAX; i++) if (widgets[i]) {
                     widgets[i]->draw();
                 }
+            case MotionNotify:
+                break;
             default:
                 break;
             }
