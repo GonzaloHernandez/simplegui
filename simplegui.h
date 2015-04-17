@@ -20,6 +20,7 @@ protected:
     int width,height;
     char text[30];
     bool focused;
+    bool hidden;
     Display*    display;
     int         screen;
     Window      window;
@@ -32,7 +33,7 @@ public:
     void (*action)();
 
     Widget(int x,int y,int width,int height,const char text[])
-        : x(x), y(y), width(width), height(height), focused(false) {
+        : x(x), y(y), width(width), height(height), focused(false), hidden(true) {
         strcpy(this->text,text);
         action = &defaultAction;
     }
@@ -66,6 +67,20 @@ public:
     virtual void setFocused(bool) {
         this->focused = false;
     }
+    //-------------------------------------------------------------------------------
+    char* getText() {
+        return text;
+    }
+    //-------------------------------------------------------------------------------
+    void setText(const char text[]) {
+        strcpy(this->text,text);
+        draw();
+    }
+    //-------------------------------------------------------------------------------
+    void show() {
+        hidden = false;
+        draw();
+    }
 };
 
 /**
@@ -79,20 +94,28 @@ public:
     }
     //-------------------------------------------------------------------------------
     void draw() {
+        if (hidden) return;
         XDrawString(display,window,gc,x+10,y+height/2+5,text,strlen(text));
     }
 };
 
 class TextField : public Widget {
+private:
+    bool editing;
 public:
     TextField(int x,int y,int width,int height)
         : Widget(x,y,width,height,""){
+        editing=false;
     }
     //-------------------------------------------------------------------------------
     void draw() {
+        if (hidden) return;
         XDrawRectangle(display,window,gc,x,y,width,height);
         XClearArea(display,window,x+1,y+1,width-2,height-2,false);
         XDrawString(display,window,gc,x+10,y+height/2+5,text,strlen(text));
+        if (editing) {
+            XDrawLine(display,window,gc,x+10+strlen(text)*6,y+height/2-6,x+10+strlen(text)*6,y+height/2+6);
+        }
     }
     //-------------------------------------------------------------------------------
     bool triggerEvent(XEvent& event) {
@@ -109,21 +132,21 @@ public:
             case XK_Escape:
                 return false;
             case XK_Return:
+                (*action)();
                 return true;
             case XK_Tab:
                 return true;
             case XK_BackSpace:
-                if (strlen(text)>1) {
-                    text[strlen(text)-2]='_';
+                if (strlen(text)>0) {
                     text[strlen(text)-1]=0;
                 }
                 break;
             default:
                 if (keysym==XK_Shift_L || keysym==XK_Shift_R) break;
                 if (keysym>=XK_F1 && keysym<=XK_F35) break;
-                text[strlen(text)-1]=keysym;
-                text[strlen(text)+1]=0;
-                text[strlen(text)]='_';
+                int pos = strlen(text);
+                text[pos]=keysym;
+                text[pos+1]=0;
                 break;
             }
             draw();
@@ -134,11 +157,11 @@ public:
     //-------------------------------------------------------------------------------
     void setFocused(bool focused) {
         if (focused && !this->focused) {
-            strcat(text,"_");
+            editing=true;
             draw();
         }
         else if (!focused && this->focused) {
-            text[strlen(text)-1]=0;
+            editing=false;
             draw();
         }
         this->focused = focused;
@@ -158,6 +181,7 @@ public:
     }
     //-------------------------------------------------------------------------------
     void draw() {
+        if (hidden) return;
         XDrawRectangle(display,window,gc,x,y,width,height);
 
         if (active) {
@@ -196,6 +220,74 @@ public:
             }
         }
         return false;
+    }
+};
+
+/**
+ * @brief The List class
+ */
+class List : public Widget {
+    static const int   MAX = 100;
+private:
+    char* items[MAX];
+    int current;
+public:
+    List(int x,int y,int width,int height)
+        : Widget(x,y,width,height,"") {
+        for (int i=0; i<MAX; i++) items[i]=NULL;
+        current=1;
+    }
+    //-------------------------------------------------------------------------------
+    ~List() {
+        for (int i=0; i<MAX; i++) if (items[i]) {
+            delete items[i];
+        }
+    }
+    //-------------------------------------------------------------------------------
+    void draw() {
+        if (hidden) return;
+        XDrawRectangle(display,window,gc,x,y,width,height);
+        XClearArea(display,window,x+1,y+1,width-2,height-2,false);
+        if (current>=0) {
+            XSetForeground(display,gc,rgb(150,150,255));
+            XFillRectangle(display,window,gc,x+1,y+1+current*13,width-1,13);
+            XSetForeground(display,gc,rgb(0,0,0));
+        }
+        for (int i=0; i<MAX; i++) if (items[i]) {
+            XDrawString(display,window,gc,x+5,y+12+i*13,items[i],strlen(items[i]));
+        }
+    }
+    //-------------------------------------------------------------------------------
+    void add(const char item[]) {
+        for (int i=0; i<MAX; i++) if (!items[i]) {
+            items[i] = new char[strlen(item)+1];
+            strcpy(items[i],item);
+            draw();
+            break;
+        }
+    }
+    //-------------------------------------------------------------------------------
+    bool triggerEvent(XEvent& event) {
+        switch (event.type) {
+        case ButtonPress:
+            if (mouseInArea(event)) {
+                int position = (event.xbutton.y-y)/13;
+                if (position<count()) {
+                    current = position;
+                }
+                draw();
+            }
+            break;
+        }
+        return false;
+    }
+    //-------------------------------------------------------------------------------
+    int count() {
+        int counter = 0;
+        for (int i=0; i<MAX; i++) if (items[i]) {
+            counter++;
+        }
+        return counter;
     }
 };
 
@@ -241,6 +333,9 @@ public:
     }
     //-------------------------------------------------------------------------------
     void run() {
+        for (int i=0; i<MAX; i++) if (widgets[i]){
+            widgets[i]->show();
+        }
         while(active) {
             XEvent event;
             XNextEvent(display,&event);
