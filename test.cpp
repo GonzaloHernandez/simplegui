@@ -22,7 +22,7 @@ int main() {
     frame->add(new TextField(150,50,300,20));
     frame->add(new Button(20,360,100,20,"Salir"))->action = &quit;
 
-    list = new List(20,80,200,200);
+    list = new List(20,80,200,100);
     list->add("One");
     list->add("Two");
     list->add("Three");

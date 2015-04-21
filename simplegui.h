@@ -230,12 +230,13 @@ class List : public Widget {
     static const int   MAX = 100;
 private:
     char* items[MAX];
-    int current;
+    int current,first;
 public:
     List(int x,int y,int width,int height)
         : Widget(x,y,width,height,"") {
         for (int i=0; i<MAX; i++) items[i]=NULL;
-        current=1;
+        current=0;
+        first=1;
     }
     //-------------------------------------------------------------------------------
     ~List() {
@@ -247,14 +248,21 @@ public:
     void draw() {
         if (hidden) return;
         XDrawRectangle(display,window,gc,x,y,width,height);
-        XClearArea(display,window,x+1,y+1,width-2,height-2,false);
+        XClearArea(display,window,x+1,y+1,width-1,height-1,false);
         if (current>=0) {
             XSetForeground(display,gc,rgb(150,150,255));
             XFillRectangle(display,window,gc,x+1,y+1+current*13,width-1,13);
             XSetForeground(display,gc,rgb(0,0,0));
         }
-        for (int i=0; i<MAX; i++) if (items[i]) {
-            XDrawString(display,window,gc,x+5,y+12+i*13,items[i],strlen(items[i]));
+        int rows    = height/13;
+        int columns = (width-8)/6;
+        for (int i=0,r=0; i<MAX && r<rows; i++) if (items[i]) {
+            char* item = new char[columns+1];
+            strncpy(item,items[i],columns);
+            item[columns]=0;
+            XDrawString(display,window,gc,x+5,y+12+r*13,item,strlen(item));
+            delete item;
+            r++;
         }
     }
     //-------------------------------------------------------------------------------
@@ -319,6 +327,8 @@ public:
         XMapWindow(display,window);
         XSelectInput(display,window,ExposureMask|ButtonPressMask|ButtonReleaseMask
                      |KeyPressMask|PointerMotionMask);
+        Atom WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", False);
+        XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
         for (int i=0; i<MAX; i++) widgets[i]=NULL;
         current = NULL;
     }
@@ -361,6 +371,9 @@ public:
                     widgets[i]->draw();
                 }
             case MotionNotify:
+                break;
+            case ClientMessage:
+                dispose();
                 break;
             default:
                 break;
