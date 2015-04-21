@@ -30,6 +30,9 @@ int main() {
     list->add("One");
     list->add("Two");
     list->add("Three");
+    list->add("four");
+    list->add("five");
+    list->add("six");
     frame->add(list);
     frame->run();
 }

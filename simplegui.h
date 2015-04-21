@@ -18,7 +18,7 @@ class Widget {
 protected:
     int x,y;
     int width,height;
-    char text[30];
+    char text[256];
     bool focused;
     bool hidden;
     Display*    display;
@@ -95,7 +95,7 @@ public:
     //-------------------------------------------------------------------------------
     void draw() {
         if (hidden) return;
-        XDrawString(display,window,gc,x+10,y+height/2+5,text,strlen(text));
+        XDrawString(display,window,gc,x+5,y+height/2+5,text,strlen(text));
     }
 };
 
@@ -112,9 +112,9 @@ public:
         if (hidden) return;
         XDrawRectangle(display,window,gc,x,y,width,height);
         XClearArea(display,window,x+1,y+1,width-2,height-2,false);
-        XDrawString(display,window,gc,x+10,y+height/2+5,text,strlen(text));
+        XDrawString(display,window,gc,x+5,y+height/2+5,text,strlen(text));
         if (editing) {
-            XDrawLine(display,window,gc,x+10+strlen(text)*6,y+height/2-6,x+10+strlen(text)*6,y+height/2+6);
+            XDrawLine(display,window,gc,x+5+strlen(text)*6,y+height/2-6,x+5+strlen(text)*6,y+height/2+6);
         }
     }
     //-------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ public:
         unsigned int rows    = height/13;
         unsigned int columns = (width-8)/6;
 
-        if (current>=0) {
+        if (current>=0 && items.size()>0) {
             XSetForeground(display,gc,rgb(150,150,255));
             XFillRectangle(display,window,gc,x+1,y+1+current*13,width-1,13);
             XSetForeground(display,gc,rgb(0,0,0));
@@ -279,14 +279,32 @@ public:
     bool triggerEvent(XEvent& event) {
         switch (event.type) {
         case ButtonPress:
-            if (event.xbutton.button != 1) break;
-            if (mouseInArea(event)) {
-                unsigned int position = (event.xbutton.y-y)/13;
-                unsigned int rows    = height/13;
-                if (position<items.size() && position<rows) {
-                    current = position;
+            switch (event.xbutton.button) {
+            case 1: // left button
+                if (mouseInArea(event)) {
+                    unsigned int position = (event.xbutton.y-y)/13;
+                    unsigned int rows    = height/13;
+                    if (position<items.size()-first && position<rows) {
+                        current = position;
+                    }
+                    draw();
                 }
-                draw();
+                break;
+            case 5: // scrollmouse down
+                if (mouseInArea(event)) if (first>0) {
+                    int rows    = height/13;
+                    first--;
+                    if (current>=0 && current<rows-1) current++;
+                    draw();
+                }
+                break;
+            case 4: // scrollmouse up
+                if (mouseInArea(event)) if (first<(int)items.size()-1){
+                    first++;
+                    if (current>0) current--;
+                    draw();
+                }
+                break;
             }
             break;
         }
