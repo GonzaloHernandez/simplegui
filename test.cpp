@@ -1,4 +1,8 @@
 #include <simplegui.h>
+#include <vector>
+#include <iostream>
+
+using namespace std;
 
 Frame* frame;
 List* list;

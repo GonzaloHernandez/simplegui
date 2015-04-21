@@ -223,40 +223,43 @@ public:
     }
 };
 
+#include <vector>
+
 /**
  * @brief The List class
  */
 class List : public Widget {
-    static const int   MAX = 100;
 private:
-    char* items[MAX];
+    std::vector<char*> items;
     int current,first;
 public:
     List(int x,int y,int width,int height)
         : Widget(x,y,width,height,"") {
-        for (int i=0; i<MAX; i++) items[i]=NULL;
-        current=0;
-        first=1;
+        current=-1;
+        first=0;
     }
     //-------------------------------------------------------------------------------
     ~List() {
-        for (int i=0; i<MAX; i++) if (items[i]) {
+        for (unsigned int i=0; i<items.size(); i++) {
             delete items[i];
         }
+        items.clear();
     }
     //-------------------------------------------------------------------------------
     void draw() {
         if (hidden) return;
         XDrawRectangle(display,window,gc,x,y,width,height);
         XClearArea(display,window,x+1,y+1,width-1,height-1,false);
+
+        unsigned int rows    = height/13;
+        unsigned int columns = (width-8)/6;
+
         if (current>=0) {
             XSetForeground(display,gc,rgb(150,150,255));
             XFillRectangle(display,window,gc,x+1,y+1+current*13,width-1,13);
             XSetForeground(display,gc,rgb(0,0,0));
         }
-        int rows    = height/13;
-        int columns = (width-8)/6;
-        for (int i=0,r=0; i<MAX && r<rows; i++) if (items[i]) {
+        for (unsigned int i=first,r=0; i<items.size() && r<rows; i++) {
             char* item = new char[columns+1];
             strncpy(item,items[i],columns);
             item[columns]=0;
@@ -267,20 +270,20 @@ public:
     }
     //-------------------------------------------------------------------------------
     void add(const char item[]) {
-        for (int i=0; i<MAX; i++) if (!items[i]) {
-            items[i] = new char[strlen(item)+1];
-            strcpy(items[i],item);
-            draw();
-            break;
-        }
+        char* buffer = new char[strlen(item)+1];
+        strcpy(buffer,item);
+        items.push_back(buffer);
+        draw();
     }
     //-------------------------------------------------------------------------------
     bool triggerEvent(XEvent& event) {
         switch (event.type) {
         case ButtonPress:
+            if (event.xbutton.button != 1) break;
             if (mouseInArea(event)) {
-                int position = (event.xbutton.y-y)/13;
-                if (position<count()) {
+                unsigned int position = (event.xbutton.y-y)/13;
+                unsigned int rows    = height/13;
+                if (position<items.size() && position<rows) {
                     current = position;
                 }
                 draw();
@@ -291,11 +294,7 @@ public:
     }
     //-------------------------------------------------------------------------------
     int count() {
-        int counter = 0;
-        for (int i=0; i<MAX; i++) if (items[i]) {
-            counter++;
-        }
-        return counter;
+        return items.size();
     }
 };
 
