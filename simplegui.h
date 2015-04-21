@@ -142,6 +142,8 @@ public:
                 }
                 break;
             default:
+                unsigned int columns = (width-10)/6;
+                if (strlen(text) >= columns) break;
                 if (keysym==XK_Shift_L || keysym==XK_Shift_R) break;
                 if (keysym>=XK_F1 && keysym<=XK_F35) break;
                 int pos = strlen(text);
