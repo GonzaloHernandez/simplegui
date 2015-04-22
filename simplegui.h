@@ -235,6 +235,8 @@ private:
     std::vector<char*> items;
     int current,first;
 public:
+    void (*selectionChanged)(const char[]);
+
     List(int x,int y,int width,int height)
         : Widget(x,y,width,height,"") {
         current=-1;
@@ -242,10 +244,7 @@ public:
     }
     //-------------------------------------------------------------------------------
     ~List() {
-        for (unsigned int i=0; i<items.size(); i++) {
-            delete items[i];
-        }
-        items.clear();
+        removeAll();
     }
     //-------------------------------------------------------------------------------
     void draw() {
@@ -288,6 +287,7 @@ public:
                     unsigned int rows    = height/13;
                     if (position<items.size()-first && position<rows) {
                         current = position;
+                        (*selectionChanged)(items.at(current+first));
                     }
                     draw();
                 }
@@ -296,14 +296,18 @@ public:
                 if (mouseInArea(event)) if (first>0) {
                     int rows    = height/13;
                     first--;
-                    if (current>=0 && current<rows-1) current++;
+                    if (current>=0 && current<rows-1) {
+                        current++;
+                    }
                     draw();
                 }
                 break;
             case 4: // scrollmouse up
                 if (mouseInArea(event)) if (first<(int)items.size()-1){
                     first++;
-                    if (current>0) current--;
+                    if (current>0) {
+                        current--;
+                    }
                     draw();
                 }
                 break;
@@ -315,6 +319,14 @@ public:
     //-------------------------------------------------------------------------------
     int count() {
         return items.size();
+    }
+    //-------------------------------------------------------------------------------
+    void removeAll() {
+        for (unsigned int i=0; i<items.size(); i++) {
+            delete items[i];
+        }
+        items.clear();
+        draw();
     }
 };
 
@@ -348,6 +360,8 @@ public:
                      |KeyPressMask|PointerMotionMask);
         Atom WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", False);
         XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
+        XStoreName(display,window,text);
+
         for (int i=0; i<MAX; i++) widgets[i]=NULL;
         current = NULL;
     }

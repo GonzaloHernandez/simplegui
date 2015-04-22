@@ -1,7 +1,8 @@
 LIBS += -lX11
 
 HEADERS += \
-    simplegui.h
+    simplegui.h \
+    filebrowser.h
 
 SOURCES += \
     test.cpp
