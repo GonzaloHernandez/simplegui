@@ -388,6 +388,14 @@ public:
         XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
         XStoreName(display,window,text);
 
+        const char* fontname = "-*-fixed-*-r-*-*-12-*-*-*-*-*-*-*";
+        XFontStruct* font = XLoadQueryFont (display, fontname);
+        if (!font) {
+            font = XLoadQueryFont (display, "fixed");
+            std::cout << "fail"<< std::endl;
+        }
+        XSetFont (display, gc, font->fid);
+
         for (int i=0; i<MAX; i++) widgets[i]=NULL;
         current = NULL;
     }
