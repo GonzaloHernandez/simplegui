@@ -96,7 +96,12 @@ public:
     //-------------------------------------------------------------------------------
     void draw() {
         if (hidden) return;
-        XDrawString(display,window,gc,x+5,y+height/2+5,text,strlen(text));
+        XClearArea(display,window,x+1,y+1,width-1,height-1,false);
+        unsigned int columns = (width-8)/6;
+        char* visibletext = new char[columns+1];
+        strncpy(visibletext,text,columns);
+        visibletext[columns]=0;
+        XDrawString(display,window,gc,x+5,y+height/2+5,visibletext,strlen(visibletext));
     }
 };
 
@@ -112,7 +117,7 @@ public:
     void draw() {
         if (hidden) return;
         XDrawRectangle(display,window,gc,x,y,width,height);
-        XClearArea(display,window,x+1,y+1,width-2,height-2,false);
+        XClearArea(display,window,x+1,y+1,width-1,height-1,false);
         XDrawString(display,window,gc,x+5,y+height/2+5,text,strlen(text));
         if (editing) {
             XDrawLine(display,window,gc,x+5+strlen(text)*6,y+height/2-6,x+5+strlen(text)*6,y+height/2+6);
@@ -193,7 +198,7 @@ public:
             XSetForeground(display,gc,rgb(0,0,0));
         }
         else {
-            XClearArea(display,window,x+1,y+1,width-2,height-2,false);
+            XClearArea(display,window,x+1,y+1,width-1,height-1,false);
         }
         int cx = x+width/2;
         int cy = y+height/2;
@@ -298,14 +303,15 @@ public:
                     if (position<items.size()-first && position<rows) {
                         current = position;
                         (*selectionChanged)(items.at(current+first));
+
+                        struct timeval currentclicktime;
+                        gettimeofday(&currentclicktime,NULL);
+                        if (currentclicktime.tv_sec*1000+currentclicktime.tv_usec/1000 -
+                                previewsclicktime.tv_sec*1000+previewsclicktime.tv_usec/1000 <1000) {
+                            (*doubleClicked)(items.at(current+first));
+                        }
+                        previewsclicktime = currentclicktime;
                     }
-                    struct timeval currentclicktime;
-                    gettimeofday(&currentclicktime,NULL);
-                    if (currentclicktime.tv_sec + currentclicktime.tv_usec -
-                            previewsclicktime.tv_sec+previewsclicktime.tv_usec <800000) {
-                        (*doubleClicked)(items.at(current+first));
-                    }
-                    previewsclicktime = currentclicktime;
 
                     draw();
                 }
@@ -345,6 +351,7 @@ public:
         }
         items.clear();
         current = -1;
+        first = 0;
         draw();
     }
 };
