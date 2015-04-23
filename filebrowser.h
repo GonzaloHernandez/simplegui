@@ -6,12 +6,12 @@
 #include <cstdio>
 
 class FileBrowser;
-void load(const char[]);
 
 FileBrowser* p = NULL;
 
 class FileBrowser :public Frame {
 private:
+    Button* back;
     Label*  path;
     List*   folders;
     List*   files;
@@ -25,9 +25,11 @@ public:
     }
 
     void launchWidgets() {
-        path    = new Label(10,10,380,20,"/home/chalo");
+        back    = new Button(10,13,13,14,"<");
+        path    = new Label(25,10,365,20,"/home/chalo");
         folders = new List(10,40,185,145);
         files   = new List(205,40,185,145);
+        add(back);
         add(path);
         add(folders);
         add(files);
@@ -67,14 +69,14 @@ public:
         folders->selectionChanged = &load;
     }
 
-    friend void load(const char item[]);
+    static void load(const char item[]) {
+        char fullpath[256];
+        sprintf(fullpath,"%s/%s",p->path->getText(),item);
+        p->loadFiles(fullpath);
+    }
+
 };
 
-void load(const char item[]) {
-    char fullpath[256];
-    sprintf(fullpath,"%s/%s",p->path->getText(),item);
-    p->loadFiles(fullpath);
-}
 
 #endif // FILEBROWSER
 

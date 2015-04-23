@@ -234,6 +234,10 @@ class List : public Widget {
 private:
     std::vector<char*> items;
     int current,first;
+
+    //-------------------------------------------------------------------------------
+    static void defaultselectionChanged(const char[]) {}
+
 public:
     void (*selectionChanged)(const char[]);
 
@@ -241,6 +245,7 @@ public:
         : Widget(x,y,width,height,"") {
         current=-1;
         first=0;
+        selectionChanged = &defaultselectionChanged;
     }
     //-------------------------------------------------------------------------------
     ~List() {
@@ -326,6 +331,7 @@ public:
             delete items[i];
         }
         items.clear();
+        current = -1;
         draw();
     }
 };
