@@ -19,7 +19,7 @@ public:
     FileBrowser() : Frame(100,100,400,200,"Seleccione un Archivo") {
         launchWidgets();
         loadFolders();
-        //loadFiles();
+        loadFiles();
         launchEvents();
         run();
     }
@@ -49,11 +49,11 @@ public:
         }
     }
 
-    void loadFiles(const char path[]) {
+    void loadFiles() {
         files->removeAll();
         DIR *dir;
         struct dirent *ent;
-        if ((dir = opendir (path)) != NULL) {
+        if ((dir = opendir (path->getText())) != NULL) {
             while ((ent = readdir (dir)) != NULL) {
                 if (ent->d_name[0]=='.') continue;
                 if (ent->d_type != 4) {
@@ -66,13 +66,13 @@ public:
 
     void launchEvents() {
         p = this;
-        folders->selectionChanged = &load;
+        folders->doubleClicked = &load;
     }
 
     static void load(const char item[]) {
-        char fullpath[256];
-        sprintf(fullpath,"%s/%s",p->path->getText(),item);
-        p->loadFiles(fullpath);
+//        char fullpath[256];
+//        sprintf(fullpath,"%s/%s",p->path->getText(),item);
+//        p->loadFiles(fullpath);
     }
 
 };

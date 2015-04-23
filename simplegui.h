@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <X11/Xutil.h>
+#include <sys/time.h>
 
 unsigned long rgb(unsigned long red, unsigned long green, unsigned long blue) {
     return red<<16 | green<<8 | blue;
@@ -234,18 +235,22 @@ class List : public Widget {
 private:
     std::vector<char*> items;
     int current,first;
+    timeval previewsclicktime;
 
     //-------------------------------------------------------------------------------
-    static void defaultselectionChanged(const char[]) {}
+    static void defaultSelectionChanged(const char[]) {}
+    static void defaultDoubleClicked(const char[]){}
 
 public:
     void (*selectionChanged)(const char[]);
+    void (*doubleClicked)(const char[]);
 
     List(int x,int y,int width,int height)
         : Widget(x,y,width,height,"") {
         current=-1;
         first=0;
-        selectionChanged = &defaultselectionChanged;
+        selectionChanged = &defaultSelectionChanged;
+        doubleClicked = &defaultDoubleClicked;
     }
     //-------------------------------------------------------------------------------
     ~List() {
@@ -294,6 +299,14 @@ public:
                         current = position;
                         (*selectionChanged)(items.at(current+first));
                     }
+                    struct timeval currentclicktime;
+                    gettimeofday(&currentclicktime,NULL);
+                    if (currentclicktime.tv_sec + currentclicktime.tv_usec -
+                            previewsclicktime.tv_sec+previewsclicktime.tv_usec <800000) {
+                        (*doubleClicked)(items.at(current+first));
+                    }
+                    previewsclicktime = currentclicktime;
+
                     draw();
                 }
                 break;
