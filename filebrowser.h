@@ -8,6 +8,7 @@
 class FileBrowser;
 
 FileBrowser* fileBrowser = NULL;
+char fullname[256];
 
 class FileBrowser :public Frame {
 private:
@@ -15,13 +16,41 @@ private:
     Label*  path;
     List*   folders;
     List*   files;
+
+    static void backFolder() {
+        char fullpath[256];
+        strcpy(fullpath,fileBrowser->path->getText());
+        for (int i=strlen(fullpath)-2; i>=0; i--) {
+            if (fullpath[i]=='/') {
+                fullpath[i+1] = 0;
+                break;
+            }
+        }
+        fileBrowser->path->setText(fullpath);
+        fileBrowser->loadFolders();
+        fileBrowser->loadFiles();
+    }
+
+    static void forwardFolder(const char item[]) {
+        char fullpath[256];
+        sprintf(fullpath,"%s%s/",fileBrowser->path->getText(),item);
+        fileBrowser->path->setText(fullpath);
+        fileBrowser->loadFolders();
+        fileBrowser->loadFiles();
+    }
+
+    static void selectFile(const char item[]) {
+        sprintf(fullname,"%s%s",fileBrowser->path->getText(),item);
+        fileBrowser->dispose();
+    }
+
 public:
     FileBrowser() : Frame(100,100,400,200,"Seleccione un Archivo") {
         launchWidgets();
         loadFolders();
         loadFiles();
         launchEvents();
-        run();
+        strcpy(fullname,"");
     }
 
     void launchWidgets() {
@@ -33,6 +62,13 @@ public:
         add(path);
         add(folders);
         add(files);
+    }
+
+    void launchEvents() {
+        fileBrowser = this;
+        back->action = &backFolder;
+        folders->doubleClicked = &forwardFolder;
+        files->doubleClicked = &selectFile;
     }
 
     void loadFolders() {
@@ -65,32 +101,11 @@ public:
         }
     }
 
-    void launchEvents() {
-        fileBrowser = this;
-        folders->doubleClicked = &forwardFolder;
-        back->action = &backFolder;
-    }
 
-    static void forwardFolder(const char item[]) {
-        char fullpath[256];
-        sprintf(fullpath,"%s%s/",fileBrowser->path->getText(),item);
-        fileBrowser->path->setText(fullpath);
-        fileBrowser->loadFolders();
-        fileBrowser->loadFiles();
-    }
-
-    static void backFolder() {
-        char fullpath[256];
-        strcpy(fullpath,fileBrowser->path->getText());
-        for (int i=strlen(fullpath)-2; i>=0; i--) {
-            if (fullpath[i]=='/') {
-                fullpath[i+1] = 0;
-                break;
-            }
-        }
-        fileBrowser->path->setText(fullpath);
-        fileBrowser->loadFolders();
-        fileBrowser->loadFiles();
+    static const char* searchFile() {
+        FileBrowser fb;
+        fb.run();
+        return fullname;
     }
 
 };

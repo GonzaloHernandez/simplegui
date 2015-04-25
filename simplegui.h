@@ -90,7 +90,7 @@ public:
  */
 class Label : public Widget {
 public:
-    Label(int x,int y,int width,int height,const char text[])
+    Label(int x,int y,int width,int height=20,const char text[]="")
         : Widget(x,y,width,height,text){
     }
     //-------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ class TextField : public Widget {
 private:
     bool editing;
 public:
-    TextField(int x,int y,int width,int height)
+    TextField(int x,int y,int width,int height=20)
         : Widget(x,y,width,height,""){
         editing=false;
     }
@@ -184,7 +184,7 @@ class Button : public Widget {
 private:
     bool active;
 public:
-    Button(int x,int y,int width,int height,const char text[])
+    Button(int x,int y,int width,int height=20,const char text[]="")
         : Widget(x,y,width,height,text), active(false) {
     }
     //-------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ public:
     void (*selectionChanged)(const char[]);
     void (*doubleClicked)(const char[]);
 
-    List(int x,int y,int width,int height)
+    List(int x,int y,int width=100,int height=100)
         : Widget(x,y,width,height,"") {
         current=-1;
         first=0;
@@ -373,7 +373,7 @@ private:
     Widget*     current;
 
 public:
-    Frame(int x,int y,int width,int height,const char title[])
+    Frame(int x=100,int y=100,int width=600,int height=400,const char title[]="")
         : Widget(x,y,width,height,title), active(true) {
         strcpy(this->text,title);
         display = XOpenDisplay(NULL);
