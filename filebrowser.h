@@ -84,6 +84,7 @@ public:
             }
             closedir (dir);
         }
+        folders->sort();
     }
 
     void loadFiles() {
@@ -99,6 +100,7 @@ public:
             }
             closedir (dir);
         }
+        files->sort();
     }
 
 

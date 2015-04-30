@@ -6,6 +6,7 @@
 #include <iostream>
 #include <X11/Xutil.h>
 #include <sys/time.h>
+#include <algorithm>
 
 unsigned long rgb(unsigned long red, unsigned long green, unsigned long blue) {
     return red<<16 | green<<8 | blue;
@@ -216,7 +217,9 @@ public:
             }
             break;
         case ButtonRelease:
-            if (mouseInArea(event)) {
+            if (active && mouseInArea(event)) {
+                active = false;
+                draw();
                 (*action)();
                 return true;
             }
@@ -241,6 +244,11 @@ private:
     std::vector<char*> items;
     int current,first;
     timeval previewsclicktime;
+
+    //-------------------------------------------------------------------------------
+    static bool least(char* item1,char* item2) {
+        return (strcmp(item1,item2)<0);
+    }
 
     //-------------------------------------------------------------------------------
     static void defaultSelectionChanged(const char[]) {}
@@ -309,17 +317,17 @@ public:
                         current = position;
                         (*selectionChanged)(items.at(current+first));
 
+                        struct timeval currentclicktime;
+                        gettimeofday(&currentclicktime,NULL);
                         if (sameitem) {
-                            struct timeval currentclicktime;
-                            gettimeofday(&currentclicktime,NULL);
                             unsigned long dif =
                                     currentclicktime.tv_sec%10000*1000000+currentclicktime.tv_usec -
                                     previewsclicktime.tv_sec%10000*1000000+previewsclicktime.tv_usec;
                             if (dif <2000000) {
                                 (*doubleClicked)(items.at(current+first));
                             }
-                            previewsclicktime = currentclicktime;
                         }
+                        previewsclicktime = currentclicktime;
                     }
 
                     draw();
@@ -361,6 +369,11 @@ public:
         items.clear();
         current = -1;
         first = 0;
+        draw();
+    }
+    //-------------------------------------------------------------------------------
+    void sort() {
+        std::sort(items.begin(), items.end(), least );
         draw();
     }
 };
