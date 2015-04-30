@@ -256,6 +256,7 @@ public:
         first=0;
         selectionChanged = &defaultSelectionChanged;
         doubleClicked = &defaultDoubleClicked;
+        gettimeofday(&previewsclicktime,NULL);
     }
     //-------------------------------------------------------------------------------
     ~List() {
@@ -301,16 +302,24 @@ public:
                     unsigned int position = (event.xbutton.y-y)/13;
                     unsigned int rows    = height/13;
                     if (position<items.size()-first && position<rows) {
+                        bool sameitem = false;
+                        if ((unsigned int)current==position) {
+                            sameitem = true;
+                        }
                         current = position;
                         (*selectionChanged)(items.at(current+first));
 
-                        struct timeval currentclicktime;
-                        gettimeofday(&currentclicktime,NULL);
-                        if (currentclicktime.tv_sec*1000+currentclicktime.tv_usec/1000 -
-                                previewsclicktime.tv_sec*1000+previewsclicktime.tv_usec/1000 <1000) {
-                            (*doubleClicked)(items.at(current+first));
+                        if (sameitem) {
+                            struct timeval currentclicktime;
+                            gettimeofday(&currentclicktime,NULL);
+                            unsigned long dif =
+                                    currentclicktime.tv_sec%10000*1000000+currentclicktime.tv_usec -
+                                    previewsclicktime.tv_sec%10000*1000000+previewsclicktime.tv_usec;
+                            if (dif <2000000) {
+                                (*doubleClicked)(items.at(current+first));
+                            }
+                            previewsclicktime = currentclicktime;
                         }
-                        previewsclicktime = currentclicktime;
                     }
 
                     draw();
