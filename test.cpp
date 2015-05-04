@@ -12,12 +12,12 @@ Package* package;
 class Package :public Frame {
 private:
     Button* browsefile;
-    Label*  filename;
+    TextField*  filename;
     List*   listfiles;
 public:
     Package() {
         browsefile  = new Button(20,20,100,20,"...");
-        filename    = new Label(150,20,430,20,"");
+        filename    = new TextField(150,20,430,20);
         listfiles   = new List(20,60,560,300);
         add(browsefile);
         add(filename);

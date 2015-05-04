@@ -410,7 +410,23 @@ public:
         XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
         XStoreName(display,window,text);
 
-        const char* fontname = "-*-fixed-*-r-*-*-12-*-*-*-*-*-*-*";
+//        char **list;
+//        int n;
+//        list = XListFonts(display, "*", 2000, &n);
+//        for (int i=0; i<n; i++) {
+//            std::cout << list[i] << std::endl;
+//        }
+//        std::cout << n << std::endl;
+
+//        const char* fontname = "-bitstream-bitstream vera sans mono-medium-r-normal--10-0-0-0-m-0-iso8859-1";
+//        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--10-0-0-0-p-0-iso8859-1";
+//        const char* fontname = "-microsoft-trebuchet ms-medium-r-normal--11-0-0-0-p-0-iso8859-9";
+//        const char* fontname = "-microsoft-verdana-medium-r-normal--10-0-0-0-p-0-iso10646-1";
+//        const char* fontname = "-misc-dejavu sans condensed-medium-r-semicondensed--11-0-0-0-p-0-iso8859-1";
+//        const char* fontname = "-misc-ubuntu condensed-medium-r-normal--13-0-0-0-p-0-iso8859-1";
+//        const char* fontname = "-monotype-courier new-medium-r-normal--11-0-0-0-m-0-ascii-0";
+
+        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--11-0-0-0-p-0-iso8859-1";
         XFontStruct* font = XLoadQueryFont (display, fontname);
         if (!font) {
             font = XLoadQueryFont (display, "fixed");
@@ -420,6 +436,7 @@ public:
 
         for (int i=0; i<MAX; i++) widgets[i]=NULL;
         current = NULL;
+
     }
     //-------------------------------------------------------------------------------
     ~Frame() {
