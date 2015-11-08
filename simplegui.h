@@ -418,15 +418,15 @@ public:
 //        }
 //        std::cout << n << std::endl;
 
-//        const char* fontname = "-bitstream-bitstream vera sans mono-medium-r-normal--10-0-0-0-m-0-iso8859-1";
+        const char* fontname = "-bitstream-bitstream vera sans mono-medium-r-normal--10-0-0-0-m-0-iso8859-1";
 //        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--10-0-0-0-p-0-iso8859-1";
 //        const char* fontname = "-microsoft-trebuchet ms-medium-r-normal--11-0-0-0-p-0-iso8859-9";
 //        const char* fontname = "-microsoft-verdana-medium-r-normal--10-0-0-0-p-0-iso10646-1";
 //        const char* fontname = "-misc-dejavu sans condensed-medium-r-semicondensed--11-0-0-0-p-0-iso8859-1";
 //        const char* fontname = "-misc-ubuntu condensed-medium-r-normal--13-0-0-0-p-0-iso8859-1";
 //        const char* fontname = "-monotype-courier new-medium-r-normal--11-0-0-0-m-0-ascii-0";
+//        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--11-0-0-0-p-0-iso8859-1";
 
-        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--11-0-0-0-p-0-iso8859-1";
         XFontStruct* font = XLoadQueryFont (display, fontname);
         if (!font) {
             font = XLoadQueryFont (display, "fixed");
