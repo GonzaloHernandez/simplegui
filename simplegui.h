@@ -460,9 +460,7 @@ public:
             for (int i=0; i<MAX; i++) {
                 if (widgets[i]) {
                     if (widgets[i]->triggerEvent(event)) {
-                        if (current) current->setFocused(false);
-                        current = widgets[i];
-                        current->setFocused(true);
+                        changeFocus(widgets[i]);
                         goto done;
                     }
                 }
@@ -499,6 +497,12 @@ public:
     //-------------------------------------------------------------------------------
     void dispose() {
         active = false;
+    }
+    //-------------------------------------------------------------------------------
+    void changeFocus(Widget* widget) {
+        if (current) current->setFocused(false);
+        current = widget;
+        current->setFocused(true);
     }
 };
 
