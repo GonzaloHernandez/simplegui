@@ -16,16 +16,16 @@ private:
     }
 
 public:
-    Message(char title[], char text[]) : Frame(100,100,400,90,title) {
+    Message(const char title[], const char text[]) : Frame(100,100,strlen(text)*6+20,70,title) {
         message = this;
-        info    = new Label(10,10,80,30,text);
-        ok      = new Button(10,60,380,20,"Ok");
+        info    = new Label(10,10,strlen(text)*6,20,text);
+        ok      = new Button(10,40,strlen(text)*6,20,"Ok");
         add(info);
         add(ok);
         ok->action = &accept;
     }
 
-    static const int show(char title[], char text[]) {
+    static int show(const char title[], const char text[]) {
         Message msg(title,text);
         msg.run();
         return 0;

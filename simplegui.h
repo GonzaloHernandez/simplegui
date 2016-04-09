@@ -427,6 +427,7 @@ public:
                      |KeyPressMask|PointerMotionMask);
         Atom WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", False);
         XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
+
         XStoreName(display,window,text);
 
         const char* fontname = "-bitstream-bitstream vera sans mono-medium-r-normal--10-0-0-0-m-0-iso8859-1";
