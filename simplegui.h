@@ -3,10 +3,11 @@
 
 #include <X11/Xlib.h>
 #include <cstring>
-#include <iostream>
 #include <X11/Xutil.h>
 #include <sys/time.h>
 #include <algorithm>
+
+using namespace std;
 
 unsigned long rgb(unsigned long red, unsigned long green, unsigned long blue) {
     return red<<16 | green<<8 | blue;
@@ -131,6 +132,7 @@ public:
             if (mouseInArea(event)) return true;
             break;
         case KeyPress:
+            if (!editing) return false;
             char buffer[40];
             KeySym keysym;
             XComposeStatus compose;
@@ -427,27 +429,11 @@ public:
         XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
         XStoreName(display,window,text);
 
-//        char **list;
-//        int n;
-//        list = XListFonts(display, "*", 2000, &n);
-//        for (int i=0; i<n; i++) {
-//            std::cout << list[i] << std::endl;
-//        }
-//        std::cout << n << std::endl;
-
         const char* fontname = "-bitstream-bitstream vera sans mono-medium-r-normal--10-0-0-0-m-0-iso8859-1";
-//        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--10-0-0-0-p-0-iso8859-1";
-//        const char* fontname = "-microsoft-trebuchet ms-medium-r-normal--11-0-0-0-p-0-iso8859-9";
-//        const char* fontname = "-microsoft-verdana-medium-r-normal--10-0-0-0-p-0-iso10646-1";
-//        const char* fontname = "-misc-dejavu sans condensed-medium-r-semicondensed--11-0-0-0-p-0-iso8859-1";
-//        const char* fontname = "-misc-ubuntu condensed-medium-r-normal--13-0-0-0-p-0-iso8859-1";
-//        const char* fontname = "-monotype-courier new-medium-r-normal--11-0-0-0-m-0-ascii-0";
-//        const char* fontname = "-microsoft-comic sans ms-medium-r-normal--11-0-0-0-p-0-iso8859-1";
 
         XFontStruct* font = XLoadQueryFont (display, fontname);
         if (!font) {
             font = XLoadQueryFont (display, "fixed");
-            std::cout << "fail"<< std::endl;
         }
         XSetFont (display, gc, font->fid);
 
@@ -472,6 +458,7 @@ public:
         while(active) {
             XEvent event;
             XNextEvent(display,&event);
+
             if (current) if (current->triggerEvent(event)) goto done;
 
             for (int i=0; i<MAX; i++) {

@@ -1,6 +1,6 @@
 #include <simplegui.h>
 #include <filebrowser.h>
-
+#include <message.h>
 
 /**
  * @brief Packager
@@ -62,6 +62,7 @@ public:
 
         name->action = &nameEntered;
         address->action = &addressEntered;
+        save->action = &record;
 
         run();
     }
@@ -72,6 +73,10 @@ public:
 
     static void addressEntered() {
         registerForm->changeFocus(registerForm->phone);
+    }
+
+    static void record() {
+        Message::show("Result","Your information was saved");
     }
 };
 
