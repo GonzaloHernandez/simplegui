@@ -109,10 +109,10 @@ public:
 class TextField : public Widget {
 private:
     bool editing;
+    bool tilde;
 public:
     TextField(int x,int y,int width,int height=20)
-        : Widget(x,y,width,height,""){
-        editing=false;
+        : Widget(x,y,width,height,""), editing(false), tilde(false){
     }
     //-------------------------------------------------------------------------------
     void draw() {
@@ -142,7 +142,7 @@ public:
                 (*action)();
                 return true;
             case XK_Tab:
-                return true;
+                return false;
             case XK_BackSpace:
                 if (strlen(text)>0) {
                     text[strlen(text)-1]=0;
@@ -151,12 +151,25 @@ public:
             default:
                 unsigned int columns = (width-10)/6;
                 if (strlen(text) >= columns) break;
-                if (keysym>=XK_F1 && keysym<=XK_F35) break;
 
-                if (keysym==XK_Shift_L || keysym==XK_Shift_R ||
-                    keysym==XK_Control_L || keysym==XK_Control_R ||
-                    keysym==XK_Alt_L || keysym==XK_Alt_R || keysym==XK_Menu ||
-                    keysym==XK_Super_L || keysym==XK_Super_R) break;
+                if (keysym==65105) { // Tilde
+                    tilde = true;
+                    break;
+                }
+
+                if (keysym>65000) break; // Special Keys
+
+                if (tilde) {
+                    switch (keysym) {
+                    case XK_a: keysym = XK_aacute; break;
+                    case XK_e: keysym = XK_eacute; break;
+                    case XK_i: keysym = XK_iacute; break;
+                    case XK_o: keysym = XK_oacute; break;
+                    case XK_u: keysym = XK_uacute; break;
+                    }
+                    tilde=false;
+                }
+
                 int pos = strlen(text);
                 text[pos]=keysym;
                 text[pos+1]=0;
@@ -472,7 +485,6 @@ public:
 
             switch (event.type) {
             case KeyPress:
-                //if (event.xkey.keycode==9) active=false; // ESC
                 break;
             case Expose:
                 for (int i=0; i<MAX; i++) if (widgets[i]) {
