@@ -5,9 +5,7 @@
 #include <dirent.h>
 #include <cstdio>
 
-class FileBrowser;
-
-FileBrowser* fileBrowser = NULL;
+class FileBrowser* fileBrowser = NULL;
 char fullname[256];
 
 class FileBrowser :public Frame {
@@ -46,6 +44,7 @@ private:
 
 public:
     FileBrowser() : Frame(100,100,400,200,"Seleccione un Archivo") {
+        fileBrowser = this;
         launchWidgets();
         loadFolders();
         loadFiles();
@@ -65,7 +64,6 @@ public:
     }
 
     void launchEvents() {
-        fileBrowser = this;
         back->action = &backFolder;
         folders->doubleClicked = &forwardFolder;
         files->doubleClicked = &selectFile;

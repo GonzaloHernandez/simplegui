@@ -151,8 +151,12 @@ public:
             default:
                 unsigned int columns = (width-10)/6;
                 if (strlen(text) >= columns) break;
-                if (keysym==XK_Shift_L || keysym==XK_Shift_R) break;
                 if (keysym>=XK_F1 && keysym<=XK_F35) break;
+
+                if (keysym==XK_Shift_L || keysym==XK_Shift_R ||
+                    keysym==XK_Control_L || keysym==XK_Control_R ||
+                    keysym==XK_Alt_L || keysym==XK_Alt_R || keysym==XK_Menu ||
+                    keysym==XK_Super_L || keysym==XK_Super_R) break;
                 int pos = strlen(text);
                 text[pos]=keysym;
                 text[pos+1]=0;
@@ -468,7 +472,7 @@ public:
 
             switch (event.type) {
             case KeyPress:
-                if (event.xkey.keycode==9) active=false;
+                //if (event.xkey.keycode==9) active=false; // ESC
                 break;
             case Expose:
                 for (int i=0; i<MAX; i++) if (widgets[i]) {
