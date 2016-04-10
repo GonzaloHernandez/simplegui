@@ -45,14 +45,6 @@ private:
 public:
     FileBrowser() : Frame(100,100,400,200,"Seleccione un Archivo") {
         fileBrowser = this;
-        launchWidgets();
-        loadFolders();
-        loadFiles();
-        launchEvents();
-        strcpy(fullname,"");
-    }
-
-    void launchWidgets() {
         back    = new Button(10,13,13,14,"<");
         path    = new Label(25,10,365,20,"/home/");
         folders = new List(10,40,185,145);
@@ -61,12 +53,15 @@ public:
         add(path);
         add(folders);
         add(files);
-    }
 
-    void launchEvents() {
+        loadFolders();
+        loadFiles();
+
         back->action = &backFolder;
         folders->doubleClicked = &forwardFolder;
         files->doubleClicked = &selectFile;
+
+        strcpy(fullname,"");
     }
 
     void loadFolders() {

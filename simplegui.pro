@@ -3,7 +3,8 @@ LIBS += -lX11
 HEADERS += \
     simplegui.h \
     filebrowser.h \
-    message.h
+    messagebox.h
 
 SOURCES += \
-    test.cpp
+#    test01-packager.cpp \
+    test02-registerform.cpp
