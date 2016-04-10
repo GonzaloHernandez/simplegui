@@ -1,7 +1,7 @@
 #ifndef FILEBROWSER
 #define FILEBROWSER
 
-#include <simplegui.h>
+#include "simplegui.h"
 #include <dirent.h>
 #include <cstdio>
 
@@ -43,7 +43,7 @@ private:
     }
 
 public:
-    FileBrowser() : Frame(100,100,400,200,"Seleccione un Archivo") {
+    FileBrowser() : Frame(100,100,400,200,"Select a File") {
         fileBrowser = this;
         back    = new Button(10,13,13,14,"<");
         path    = new Label(25,10,365,20,"/home/");

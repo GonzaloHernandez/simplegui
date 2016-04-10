@@ -1,7 +1,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <simplegui.h>
+#include "simplegui.h"
 #include <cstdio>
 
 enum MessageBoxType {

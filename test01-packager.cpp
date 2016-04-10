@@ -13,9 +13,9 @@ private:
     Label*  filename;
     List*   listfiles;
 public:
-    Packager() {
+    Packager() : Frame(100,100,600,380,"File browser"){
         package = this;
-        browsefile  = new Button(20,20,100,20,"Search");
+        browsefile  = new Button(20,20,100,20,"Search File");
         filename    = new Label(150,20,430,20);
         listfiles   = new List(20,60,560,300);
         add(browsefile);

@@ -7,4 +7,5 @@ HEADERS += \
 
 SOURCES += \
 #    test01-packager.cpp \
-    test02-registerform.cpp
+#    test02-registerform.cpp
+    test03-library.cpp

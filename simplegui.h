@@ -265,7 +265,7 @@ private:
     timeval previewsclicktime;
 
     //-------------------------------------------------------------------------------
-    static bool least(char* item1,char* item2) {
+    static bool less(char* item1,char* item2) {
         return (strcmp(item1,item2)<0);
     }
 
@@ -295,19 +295,21 @@ public:
         XDrawRectangle(display,window,gc,x,y,width,height);
         XClearArea(display,window,x+1,y+1,width-1,height-1,false);
 
-        unsigned int rows    = height/13;
+        unsigned int rows    = height/15;
         unsigned int columns = (width-8)/6;
 
+        strcpy(text,"");
         if (current>=0 && items.size()>0) {
             XSetForeground(display,gc,rgb(150,150,255));
-            XFillRectangle(display,window,gc,x+1,y+1+current*13,width-1,13);
+            XFillRectangle(display,window,gc,x+1,y+1+current*15,width-1,15);
             XSetForeground(display,gc,rgb(0,0,0));
+            strcpy(text,items.at(current));
         }
         for (unsigned int i=first,r=0; i<items.size() && r<rows; i++) {
             char* item = new char[columns+1];
             strncpy(item,items[i],columns);
             item[columns]=0;
-            XDrawString(display,window,gc,x+5,y+12+r*13,item,strlen(item));
+            XDrawString(display,window,gc,x+5,y+12+r*15,item,strlen(item));
             delete item;
             r++;
         }
@@ -326,8 +328,8 @@ public:
             switch (event.xbutton.button) {
             case 1: // left button
                 if (mouseInArea(event)) {
-                    unsigned int position = (event.xbutton.y-y)/13;
-                    unsigned int rows    = height/13;
+                    unsigned int position = (event.xbutton.y-y)/15;
+                    unsigned int rows    = height/15;
                     if (position<items.size()-first && position<rows) {
                         bool sameitem = false;
                         if ((unsigned int)current==position) {
@@ -354,7 +356,7 @@ public:
                 break;
             case 5: // scrollmouse down
                 if (mouseInArea(event)) if (first>0) {
-                    int rows    = height/13;
+                    int rows    = height/15;
                     first--;
                     if (current>=0 && current<rows-1) {
                         current++;
@@ -377,8 +379,22 @@ public:
         return false;
     }
     //-------------------------------------------------------------------------------
+    int getCurrentIndex() {
+        return current;
+    }
+
+    //-------------------------------------------------------------------------------
     int count() {
         return items.size();
+    }
+    //-------------------------------------------------------------------------------
+    void remove(int i) {
+        if (i<0) return;
+        delete items[i];
+        items.erase(items.begin()+i);
+        current = -1;
+        first = 0;
+        draw();
     }
     //-------------------------------------------------------------------------------
     void removeAll() {
@@ -392,7 +408,7 @@ public:
     }
     //-------------------------------------------------------------------------------
     void sort() {
-        std::sort(items.begin(), items.end(), least );
+        std::sort(items.begin(), items.end(), less );
         draw();
     }
 };
