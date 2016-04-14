@@ -31,8 +31,8 @@ public:
         add( new Label(20,20,80,20,"New Book:") );
         add( book = new TextField(100,20,280,20) );
         add( insert = new Button(400,20,80,20,"Add Book") );
-        add (new Label( 20,50,200,20,"Available Books") );
-        add (new Label(280,50,200,20,"Taken Books") );
+        add( new Label( 20,50,200,20,"Available Books") );
+        add( new Label(280,50,200,20,"Taken Books") );
         add( availables = new List(20,70,200,210) );
         add( takens = new List(280,70,200,210) );
         add( lend = new Button(240,100,20,20,">") );

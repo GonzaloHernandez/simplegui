@@ -31,14 +31,18 @@ protected:
 
     //-------------------------------------------------------------------------------
     static void defaultAction() {}
+    //-------------------------------------------------------------------------------
+    static void defaultTaggedAction(char []) {}
 
 public:
     void (*action)();
+    void (*taggedAction)(char text[]);
 
     Widget(int x,int y,int width,int height,const char text[])
         : x(x), y(y), width(width), height(height), focused(false), hidden(true) {
         strcpy(this->text,text);
         action = &defaultAction;
+        taggedAction = &defaultTaggedAction;
     }
     //-------------------------------------------------------------------------------
     void updateGraphVariables(Display* display,int screen,Window window,GC gc) {
@@ -142,6 +146,7 @@ public:
                 return false;
             case XK_Return:
                 (*action)();
+                (*taggedAction)(text);
                 return true;
             case XK_Tab:
                 return false;
@@ -240,6 +245,7 @@ public:
                 active = false;
                 draw();
                 (*action)();
+                (*taggedAction)(text);
                 return true;
             }
             break;
