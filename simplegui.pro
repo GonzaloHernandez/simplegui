@@ -6,7 +6,7 @@ HEADERS += \
     messagebox.h
 
 SOURCES += \
-    test04-numericpad.cpp
-#    test01-packager.cpp \
+#    test04-numericpad.cpp
+    test03-library.cpp \
 #    test02-registerform.cpp
-#    test03-library.cpp \
+#    test01-packager.cpp \

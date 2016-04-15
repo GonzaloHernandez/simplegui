@@ -13,9 +13,14 @@ unsigned long rgb(unsigned long red, unsigned long green, unsigned long blue) {
     return red<<16 | green<<8 | blue;
 }
 
+//===================================================================================
+
 /**
  * @brief The Widget class
- * ==================================================================================
+ * is the base of all classes in the simplegui library, this
+ * class has the main visual information like a position, dimensions, presentation
+ * and so on.  In addition to these properties, this class has two default actions,
+ * which can be programmed in the future by a programmer user.
  */
 class Widget {
 protected:
@@ -90,10 +95,14 @@ public:
     }
 };
 
+//===================================================================================
+
 /**
  * @brief The Label class
- * ==================================================================================
+ * is the most simple visual class, useful show information to
+ * an application final user.  This class does not programm any action.
  */
+
 class Label : public Widget {
 public:
     Label(int x,int y,int width,int height=20,const char text[]="")
@@ -111,6 +120,13 @@ public:
     }
 };
 
+//===================================================================================
+
+/**
+ * @brief The TextField class
+ * is the object used to get information since the final user.  To activate its
+ * functionality, the user must do click over its area.
+ */
 class TextField : public Widget {
 private:
     bool editing;
@@ -201,9 +217,13 @@ public:
     }
 };
 
+//===================================================================================
+
 /**
  * @brief The Button class
- * ==================================================================================
+ * is the prefered object usted to execute actions in common applications.  This
+ * object is actionated by means of a click with the mouse device.  This class can
+ * program the two actions inherited of Widget class.
  */
 class Button : public Widget {
 private:
@@ -259,10 +279,15 @@ public:
     }
 };
 
+//===================================================================================
+
 #include <vector>
 
 /**
  * @brief The List class
+ * is a containter of textual items, it object can be stored more items as it can to
+ * show.  The final user can use the scroll mouse to browse more item hiden behind
+ * the object space.
  */
 class List : public Widget {
 private:
@@ -419,19 +444,17 @@ public:
     }
 };
 
+//===================================================================================
+
 /**
  * @brief The Frame class
- * ==================================================================================
+ * manage all visual objects: Labels, InputText, Buttons, Lists, so on. One frame
+ * works like a window, and send all actions to each object after use them.
  */
 class Frame : public Widget {
-    static const int   MAX = 100;
+    static const int   MAX = 500;
 private:
     bool        active;
-
-    Display*    display;
-    int         screen;
-    Window      window;
-    GC          gc;
     Widget*     widgets[MAX];
     Widget*     current;
 
