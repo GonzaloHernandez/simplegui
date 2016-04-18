@@ -554,6 +554,16 @@ public:
     }
 };
 
+/*! \mainpage Simple library to create graphic applications
+ * This library will be used to create basic applications coding in C++ language and
+ * including the XLib library (X Window System implementation)
+ *
+ * \section screenshot_sec Screenshot
+ * Clasic application using Labels, InputTexts, Buttons and Lists.
+ *
+ * <img src="mainpagetest.png">
+ */
+
 
 #endif // GUI
 
