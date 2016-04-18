@@ -561,7 +561,7 @@ public:
  * \section screenshot_sec Screenshot
  * Clasic application using Labels, InputTexts, Buttons and Lists.
  *
- * <img src="mainpagetest.png">
+ * <img src="library-test.png">
  */
 
 

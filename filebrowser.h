@@ -5,16 +5,26 @@
 #include <dirent.h>
 #include <cstdio>
 
-class FileBrowser* fileBrowser = NULL;
 char fullname[256];
 
+//===================================================================================
+
+class FileBrowser* fileBrowser = NULL;
+
+/**
+ * @brief The FileBrowser class
+ * show a frame useful to search a file.  This interface is created using the SimpleGUI
+ * widgets and is capable of return a string (char[]) with the full file name of selected
+ * file.
+ * <img src="filebrowser.png">
+ */
 class FileBrowser :public Frame {
 private:
     Button* back;
     Label*  path;
     List*   folders;
     List*   files;
-
+    //-------------------------------------------------------------------------------
     static void backFolder() {
         char fullpath[256];
         strcpy(fullpath,fileBrowser->path->getText());
@@ -28,7 +38,7 @@ private:
         fileBrowser->loadFolders();
         fileBrowser->loadFiles();
     }
-
+    //-------------------------------------------------------------------------------
     static void forwardFolder(const char item[]) {
         char fullpath[256];
         sprintf(fullpath,"%s%s/",fileBrowser->path->getText(),item);
@@ -36,7 +46,7 @@ private:
         fileBrowser->loadFolders();
         fileBrowser->loadFiles();
     }
-
+    //-------------------------------------------------------------------------------
     static void selectFile(const char item[]) {
         sprintf(fullname,"%s%s",fileBrowser->path->getText(),item);
         fileBrowser->dispose();
@@ -63,7 +73,7 @@ public:
 
         strcpy(fullname,"");
     }
-
+    //-------------------------------------------------------------------------------
     void loadFolders() {
         folders->removeAll();
         DIR *dir;
@@ -79,7 +89,7 @@ public:
         }
         folders->sort();
     }
-
+    //-------------------------------------------------------------------------------
     void loadFiles() {
         files->removeAll();
         DIR *dir;
@@ -95,8 +105,7 @@ public:
         }
         files->sort();
     }
-
-
+    //-------------------------------------------------------------------------------
     static const char* searchFile() {
         FileBrowser fb;
         fb.run();

@@ -8,35 +8,43 @@ enum MessageBoxType {
     MSG_OK,MSG_OKCANCEL,MSG_YESNO
 };
 
+//===================================================================================
+
 class MessageBox* messageBox = NULL;
 
+/**
+ * @brief The MessageBox class
+ * is a frame useful to show rapid information, this frame can be customized to retrieve
+ * short answers like a: OK, CANCEL, YES or NO.
+ * <img src="messagebox.png">
+ */
 class MessageBox :public Frame {
 private:
     Label*  info;
     Button* buttons[2];
     MessageBoxType type;
     int returnValue;
-
+    //-------------------------------------------------------------------------------
     static void triggerOk() {
         messageBox->returnValue = 0;
         messageBox->dispose();
     }
-
+    //-------------------------------------------------------------------------------
     static void triggerCancel() {
         messageBox->returnValue = 1;
         messageBox->dispose();
     }
-
+    //-------------------------------------------------------------------------------
     static void triggerYes() {
         messageBox->returnValue = 0;
         messageBox->dispose();
     }
-
+    //-------------------------------------------------------------------------------
     static void triggerNo() {
         messageBox->returnValue = 1;
         messageBox->dispose();
     }
-
+    //-------------------------------------------------------------------------------
     static void triggerButton(MessageBoxType type) {
         if (type == MSG_OK) {
         }
@@ -68,7 +76,7 @@ public:
             break;
         }
     }
-
+    //-------------------------------------------------------------------------------
     static int show(const char title[], const char text[], MessageBoxType type=MSG_OK) {
         MessageBox msg(title,text,type);
         msg.run();
