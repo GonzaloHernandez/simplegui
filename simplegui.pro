@@ -8,5 +8,6 @@ HEADERS += \
 SOURCES += \
 #    test04-numericpad.cpp
 #    test03-library.cpp \
-    test02-registerform.cpp
+#    test02-registerform.cpp \
 #    test01-packager.cpp \
+    test00-helloworld.cpp
