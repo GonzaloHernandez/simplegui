@@ -4,6 +4,7 @@
 #include "simplegui.h"
 #include <dirent.h>
 #include <cstdio>
+#include <unistd.h>
 
 char fullname[256];
 
@@ -56,7 +57,17 @@ public:
     FileBrowser() : Frame(100,100,400,200,"Select a File") {
         fileBrowser = this;
         back    = new Button(10,13,13,14,"<");
-        path    = new Label(25,10,365,20,"/home/");
+
+        char currentPath[FILENAME_MAX];
+
+        if (getcwd(currentPath, sizeof(currentPath))) {
+            strcat(currentPath,"/");
+        }
+        else {
+            strcpy(currentPath,"/home/");
+        }
+
+        path    = new Label(25,10,365,20,currentPath);
         folders = new List(10,40,185,145);
         files   = new List(205,40,185,145);
         add(back);

@@ -1,5 +1,5 @@
-#ifndef GUI
-#define GUI
+#ifndef SIMPLEGUI_H
+#define SIMPLEGUI_H
 
 #include <X11/Xlib.h>
 #include <cstring>
@@ -7,9 +7,13 @@
 #include <sys/time.h>
 #include <algorithm>
 
+typedef unsigned char   byte;
+typedef unsigned int    uing;
+typedef unsigned long   ulong;
+
 using namespace std;
 
-unsigned long rgb(unsigned long red, unsigned long green, unsigned long blue) {
+ulong rgb(ulong red, ulong green, ulong blue) {
     return red<<16 | green<<8 | blue;
 }
 
@@ -29,6 +33,8 @@ protected:
     char text[256];
     bool focused;
     bool hidden;
+    ulong forecolor;
+    ulong backcolor;
     Display*    display;
     int         screen;
     Window      window;
@@ -43,8 +49,10 @@ public:
     void (*action)();
     void (*taggedAction)(char text[]);
 
-    Widget(int x,int y,int width,int height,const char text[])
-        : x(x), y(y), width(width), height(height), focused(false), hidden(true) {
+    Widget(int x,int y,int width,int height,const char text[]="",
+           ulong forecolor=rgb(0,0,0),ulong backcolor=rgb(255,255,255))
+        : x(x), y(y), width(width), height(height), focused(false), hidden(true),
+          forecolor(forecolor), backcolor(backcolor) {
         strcpy(this->text,text);
         action = &defaultAction;
         taggedAction = &defaultTaggedAction;
@@ -103,20 +111,50 @@ public:
  * an application final user.  This class does not programm any action.
  */
 
+enum AlignmentType {
+    LEFT,RIGHT,CENTER
+};
+
 class Label : public Widget {
+private:
+    AlignmentType aligment;
+    bool transparent;
 public:
-    Label(int x,int y,int width,int height=20,const char text[]="")
-        : Widget(x,y,width,height,text){
+    Label(int x,int y,int width,int height=20,const char text[]="",
+          AlignmentType aligment=LEFT,ulong forecolor = rgb(0,0,0),
+          bool transparent=true,ulong backcolor=rgb(255,255,255))
+        : Widget(x,y,width,height,text,forecolor,backcolor),aligment(aligment),
+          transparent(transparent){
     }
     //-------------------------------------------------------------------------------
     void draw() {
         if (hidden) return;
         XClearArea(display,window,x+1,y+1,width-1,height-1,false);
-        unsigned int columns = (width-8)/6;
+        uint columns = (width-8)/6;
         char* visibletext = new char[columns+1];
         strncpy(visibletext,text,columns);
         visibletext[columns]=0;
-        XDrawString(display,window,gc,x+5,y+height/2+5,visibletext,strlen(visibletext));
+        if (!transparent) {
+            XSetForeground(display,gc,backcolor);
+            XFillRectangle(display,window,gc,x+1,y+1,width-1,height-1);
+        }
+
+        XSetForeground(display,gc,forecolor);
+        int px;
+        switch (aligment) {
+        case LEFT:
+            px = (x+5);
+            break;
+        case CENTER:
+            px = (x+width/2) - (strlen(text)*7)/2;
+            break;
+        case RIGHT:
+            px = (x+width-5) - (strlen(text)*7);
+            break;
+        }
+
+        XDrawString(display,window,gc,px,y+height/2+5,visibletext,strlen(visibletext));
+        XSetForeground(display,gc,rgb(0,0,0));
     }
 };
 
@@ -133,7 +171,7 @@ private:
     bool tilde;
 public:
     TextField(int x,int y,int width,int height=20)
-        : Widget(x,y,width,height,""), editing(false), tilde(false){
+        : Widget(x,y,width,height), editing(false), tilde(false){
     }
     //-------------------------------------------------------------------------------
     void draw() {
@@ -172,7 +210,7 @@ public:
                 }
                 break;
             default:
-                unsigned int columns = (width-10)/6;
+                uint columns = (width-10)/6;
                 if (strlen(text) >= columns) break;
 
                 if (keysym==65105) { // Tilde
@@ -309,7 +347,7 @@ public:
     void (*doubleClicked)(const char[]);
 
     List(int x,int y,int width=100,int height=100)
-        : Widget(x,y,width,height,"") {
+        : Widget(x,y,width,height) {
         current=-1;
         first=0;
         selectionChanged = &defaultSelectionChanged;
@@ -326,8 +364,8 @@ public:
         XDrawRectangle(display,window,gc,x,y,width,height);
         XClearArea(display,window,x+1,y+1,width-1,height-1,false);
 
-        unsigned int rows    = height/15;
-        unsigned int columns = (width-8)/6;
+        uint rows    = height/15;
+        uint columns = (width-8)/6;
 
         strcpy(text,"");
         if (current>=0 && items.size()>0) {
@@ -336,7 +374,7 @@ public:
             XSetForeground(display,gc,rgb(0,0,0));
             strcpy(text,items.at(current));
         }
-        for (unsigned int i=first,r=0; i<items.size() && r<rows; i++) {
+        for (uint i=first,r=0; i<items.size() && r<rows; i++) {
             char* item = new char[columns+1];
             strncpy(item,items[i],columns);
             item[columns]=0;
@@ -359,11 +397,11 @@ public:
             switch (event.xbutton.button) {
             case 1: // left button
                 if (mouseInArea(event)) {
-                    unsigned int position = (event.xbutton.y-y)/15;
-                    unsigned int rows    = height/15;
+                    uint position = (event.xbutton.y-y)/15;
+                    uint rows    = height/15;
                     if (position<items.size()-first && position<rows) {
                         bool sameitem = false;
-                        if ((unsigned int)current==position) {
+                        if ((uint)current==position) {
                             sameitem = true;
                         }
                         current = position;
@@ -372,7 +410,7 @@ public:
                         struct timeval currentclicktime;
                         gettimeofday(&currentclicktime,NULL);
                         if (sameitem) {
-                            unsigned long dif =
+                            ulong dif =
                                     currentclicktime.tv_sec%10000*1000000+currentclicktime.tv_usec -
                                     previewsclicktime.tv_sec%10000*1000000+previewsclicktime.tv_usec;
                             if (dif <2000000) {
@@ -429,7 +467,7 @@ public:
     }
     //-------------------------------------------------------------------------------
     void removeAll() {
-        for (unsigned int i=0; i<items.size(); i++) {
+        for (uint i=0; i<items.size(); i++) {
             delete items[i];
         }
         items.clear();
@@ -565,5 +603,5 @@ public:
  */
 
 
-#endif // GUI
+#endif // SIMPLEGUI_H
 
