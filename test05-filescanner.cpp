@@ -1,5 +1,8 @@
 #include "simplegui.h"
 #include "filebrowser.h"
+#include <iostream>
+
+using namespace std;
 
 typedef unsigned char byte;
 
@@ -30,15 +33,21 @@ private:
             sprintf(text,"%d",i);
             add( pos[i] = new Label(   20+i*35,20,30,10,text,CENTER,rgb(255,0,0)) );
             add( unity[i] = new Button(20+i*35,35,30,20) );
+            unity[i]-> referencedAction = &click;
         }
     }
     //--------------------------------------------------------------------
+    static void click(Widget* ref) {
+        char text[5];
+        sprintf(text,"%c",atoi(ref->getText()));
+        ref->setText(text);
+    }
+
 public:
     FileScanner() : Frame(100,100,800,70,"File Scanner") {
         scanner = this;
         launchWidgets();
         const char* fileName = FileBrowser::searchFile();
-
         scan(fileName);
         run();
     }

@@ -44,10 +44,13 @@ protected:
     static void defaultAction() {}
     //-------------------------------------------------------------------------------
     static void defaultTaggedAction(char []) {}
+    //-------------------------------------------------------------------------------
+    static void defaultReferencedAction(Widget*) {}
 
 public:
     void (*action)();
     void (*taggedAction)(char text[]);
+    void (*referencedAction)(Widget* ref);
 
     Widget(int x,int y,int width,int height,const char text[]="",
            ulong forecolor=rgb(0,0,0),ulong backcolor=rgb(255,255,255))
@@ -56,6 +59,7 @@ public:
         strcpy(this->text,text);
         action = &defaultAction;
         taggedAction = &defaultTaggedAction;
+        referencedAction = &defaultReferencedAction;
     }
     //-------------------------------------------------------------------------------
     void updateGraphVariables(Display* display,int screen,Window window,GC gc) {
@@ -201,6 +205,7 @@ public:
             case XK_Return:
                 (*action)();
                 (*taggedAction)(text);
+                (*referencedAction)(this);
                 return true;
             case XK_Tab:
                 return false;
@@ -304,6 +309,7 @@ public:
                 draw();
                 (*action)();
                 (*taggedAction)(text);
+                (*referencedAction)(this);
                 return true;
             }
             break;
