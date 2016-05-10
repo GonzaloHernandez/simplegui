@@ -39,17 +39,27 @@ private:
     //--------------------------------------------------------------------
     static void click(Widget* ref) {
         char text[5];
-        sprintf(text,"%c",atoi(ref->getText()));
-        ref->setText(text);
+        if (ref->getForecolor()==rgb(0,0,0)) {
+            sprintf(text,"%c",atoi(ref->getText()));
+            ref->setText(text);
+            ref->setForecolor(rgb(255,0,0));
+        }
+        else {
+            sprintf(text,"%d",ref->getText()[0] );
+            ref->setText(text);
+            ref->setForecolor(rgb(0,0,0));
+        }
     }
 
 public:
-    FileScanner() : Frame(100,100,800,70,"File Scanner") {
+    FileScanner() : Frame(100,100,800,70,"File Scanner",true) {
         scanner = this;
         launchWidgets();
-        const char* fileName = FileBrowser::searchFile();
-        scan(fileName);
-        run();
+        const char* fileName = FileBrowser::searchFile("/home/chalo/Music/");
+        if (strcmp(fileName,"")!=0) {
+            scan(fileName);
+            run();
+        }
     }
 };
 

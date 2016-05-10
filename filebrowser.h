@@ -54,20 +54,25 @@ private:
     }
 
 public:
-    FileBrowser() : Frame(100,100,400,200,"Select a File") {
+    FileBrowser(const char customPath[]="") : Frame(100,100,400,200,"Select a File") {
         fileBrowser = this;
         back    = new Button(10,13,13,14,"<");
 
-        char currentPath[FILENAME_MAX];
+        if (strcmp(customPath,"")==0) {
+            char currentPath[FILENAME_MAX];
 
-        if (getcwd(currentPath, sizeof(currentPath))) {
-            strcat(currentPath,"/");
+            if (getcwd(currentPath, sizeof(currentPath))) {
+                strcat(currentPath,"/");
+            }
+            else {
+                strcpy(currentPath,"/home/");
+            }
+            path    = new Label(25,10,365,20,currentPath);
         }
         else {
-            strcpy(currentPath,"/home/");
+            path    = new Label(25,10,365,20,customPath);
         }
 
-        path    = new Label(25,10,365,20,currentPath);
         folders = new List(10,40,185,145);
         files   = new List(205,40,185,145);
         add(back);
@@ -117,8 +122,8 @@ public:
         files->sort();
     }
     //-------------------------------------------------------------------------------
-    static const char* searchFile() {
-        FileBrowser fb;
+    static const char* searchFile(const char path[]="") {
+        FileBrowser fb(path);
         fb.run();
         return fullname;
     }

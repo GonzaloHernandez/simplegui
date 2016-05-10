@@ -105,6 +105,15 @@ public:
         hidden = false;
         draw();
     }
+    //-------------------------------------------------------------------------------
+    ulong getForecolor() {
+        return forecolor;
+    }
+    //-------------------------------------------------------------------------------
+    void setForecolor(ulong forecolor) {
+        this->forecolor = forecolor;
+        draw();
+    }
 };
 
 //===================================================================================
@@ -292,7 +301,9 @@ public:
         int cy = y+height/2;
         int twidth = strlen(text)*7;
         int theight = 10;
+        XSetForeground(display,gc,forecolor);
         XDrawString(display,window,gc,cx-twidth/2,cy+theight/2,text,strlen(text));
+        XSetForeground(display,gc,rgb(0,0,0));
     }
     //-------------------------------------------------------------------------------
     bool triggerEvent(XEvent& event) {
@@ -499,12 +510,13 @@ class Frame : public Widget {
     static const int   MAX = 500;
 private:
     bool        active;
+    bool        resizable;
     Widget*     widgets[MAX];
     Widget*     current;
 
 public:
-    Frame(int x=100,int y=100,int width=600,int height=400,const char title[]="")
-        : Widget(x,y,width,height,title), active(true) {
+    Frame(int x=100,int y=100,int width=600,int height=400,const char title[]="",bool resizable=false)
+        : Widget(x,y,width,height,title), active(true), resizable(resizable) {
         display = XOpenDisplay(NULL);
         screen  = DefaultScreen(display);
         window  = XCreateSimpleWindow(display,RootWindow(display,screen),
@@ -527,35 +539,39 @@ public:
         for (int i=0; i<MAX; i++) widgets[i]=NULL;
         current = NULL;
 
-        // This code will disable resize property
-        XWMHints *wm_hints;
-        XClassHint *class_hints;
-        XTextProperty windowName, iconName;
-        char *window_name = (char*)title;
-        char *icon_name = (char*)"";
-        XSizeHints* size_hints = XAllocSizeHints();
-        wm_hints = XAllocWMHints();
-        class_hints = XAllocClassHint();
-        size_hints->flags = PPosition|PSize|PMinSize|PMaxSize;
-        size_hints->min_width = width;
-        size_hints->min_height = height;
-        size_hints->max_width = width;
-        size_hints->max_height = height;
+        if (resizable) {
+            XStoreName(display,window,text);
+        }
+        else {
+            XWMHints *wm_hints;
+            XClassHint *class_hints;
+            XTextProperty windowName, iconName;
+            char *window_name = (char*)title;
+            char *icon_name = (char*)"";
+            XSizeHints* size_hints = XAllocSizeHints();
+            wm_hints = XAllocWMHints();
+            class_hints = XAllocClassHint();
+            size_hints->flags = PPosition|PSize|PMinSize|PMaxSize;
+            size_hints->min_width = width;
+            size_hints->min_height = height;
+            size_hints->max_width = width;
+            size_hints->max_height = height;
 
-        XStringListToTextProperty(&window_name, 1, &windowName);
-        XStringListToTextProperty(&icon_name, 1, &iconName);
+            XStringListToTextProperty(&window_name, 1, &windowName);
+            XStringListToTextProperty(&icon_name, 1, &iconName);
 
-        wm_hints->initial_state = NormalState;
-        wm_hints->input = True;
-        wm_hints->flags = StateHint | IconPixmapHint | InputHint;
-        class_hints->res_name = (char*)"progname";
-        class_hints->res_class = (char*)"Basicwin";
+            wm_hints->initial_state = NormalState;
+            wm_hints->input = True;
+            wm_hints->flags = StateHint | IconPixmapHint | InputHint;
+            class_hints->res_name = (char*)"progname";
+            class_hints->res_class = (char*)"Basicwin";
 
-        int argc=1;
-        char* argv[] = {(char*)"test"};
+            int argc=1;
+            char* argv[] = {(char*)"test"};
 
-        XSetWMProperties(display,window,&windowName,&iconName,argv,argc,size_hints,
-                         wm_hints,class_hints);
+            XSetWMProperties(display,window,&windowName,&iconName,argv,argc,size_hints,
+                             wm_hints,class_hints);
+        }
     }
     //-------------------------------------------------------------------------------
     ~Frame() {
@@ -637,4 +653,3 @@ public:
 
 
 #endif // SIMPLEGUI_H
-
