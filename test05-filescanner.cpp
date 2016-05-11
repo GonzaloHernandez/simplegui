@@ -13,6 +13,8 @@ class FileScanner :public Frame {
 private:
     Label*  pos[MAX];
     Button* unity[MAX];
+    vector<Button*> fields;
+    Widget* lbound,*ubound;
     //--------------------------------------------------------------------
     void scan(const char fileName[]) {
         FILE* file = fopen(fileName,"r");
@@ -31,34 +33,37 @@ private:
         for (int i=0; i<MAX; i++) {
             char text[5];
             sprintf(text,"%d",i);
-            add( pos[i] = new Label(   20+i*35,20,30,10,text,CENTER,rgb(255,0,0)) );
-            add( unity[i] = new Button(20+i*35,35,30,20) );
+            add( pos[i] = new Label(   20,20+i*15,30,13,text,RIGHT,rgb(255,0,0)) );
+            add( unity[i] = new Button(60,20+i*15,30,13) );
             unity[i]-> referencedAction = &click;
-        }
-    }
-    //--------------------------------------------------------------------
-    static void click(Widget* ref) {
-        char text[5];
-        if (ref->getForecolor()==rgb(0,0,0)) {
-            sprintf(text,"%c",atoi(ref->getText()));
-            ref->setText(text);
-            ref->setForecolor(rgb(255,0,0));
-        }
-        else {
-            sprintf(text,"%d",ref->getText()[0] );
-            ref->setText(text);
-            ref->setForecolor(rgb(0,0,0));
         }
     }
 
 public:
     FileScanner() : Frame(100,100,800,70,"File Scanner",true) {
         scanner = this;
+        lbound = ubound = NULL;
         launchWidgets();
         const char* fileName = FileBrowser::searchFile("/home/chalo/Music/");
         if (strcmp(fileName,"")!=0) {
             scan(fileName);
             run();
+        }
+    }
+private:
+    //--------------------------------------------------------------------
+    static void click(Widget* ref) {
+        if (ref->getForecolor()==rgb(0,0,0)) {
+            ref->setForecolor(rgb(255,0,0));
+            if (!scanner->lbound) {
+                scanner->lbound = ref;
+            }
+            else {
+                scanner->ubound = ref;
+                Button* n = new Button(150,scanner->lbound->getY(),20,scanner->ubound->getY()-scanner->lbound->getY()+20);
+                scanner->add(n);
+
+            }
         }
     }
 };
