@@ -6,9 +6,10 @@ HEADERS += \
     messagebox.h
 
 SOURCES += \
+#    test05-filescanner.cpp \
 #    test04-numericpad.cpp
 #    test03-library.cpp \
 #    test02-registerform.cpp \
 #    test01-packager.cpp \
 #    test00-helloworld.cpp \
-    test05-filescanner.cpp
+    main.cpp
