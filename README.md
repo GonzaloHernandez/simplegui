@@ -29,4 +29,4 @@ In addition is included an empty test example.
 ```
 main.cpp
 ```
-Uncomment and comment appropiately one at a time.
+Uncomment and comment appropiately, one at a time.
