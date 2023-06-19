@@ -16,7 +16,7 @@ make
 ```
 ## Getting started
 
-There are 5 test examples which can interchanged in CMakeLists.txt (CMake) or SGtest.pro (QMake / QTCreator).
+There are 6 test examples which can interchanged in CMakeLists.txt (CMake) or SGtest.pro (QMake / QTCreator).
 ```
 test05-filescanner.cpp
 test04-numericpad.cpp
