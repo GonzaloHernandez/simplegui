@@ -18,7 +18,7 @@ make
 
 There are 5 test example which can interchanged in CMakeLists.txt (CMake) or SGtest.pro (QMake / QTCreator).
 ```
-> test05-filescanner.cpp
+test05-filescanner.cpp
 test04-numericpad.cpp
 test03-library.cpp
 test02-registerform.cpp
@@ -29,4 +29,4 @@ In addition is included an empty test example.
 ```
 main.cpp
 ```
-Uncomment and comment appropiately
+Uncomment and comment appropiately one at a time.
